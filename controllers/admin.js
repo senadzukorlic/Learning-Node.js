@@ -8,6 +8,18 @@ exports.getAddProduct = (req, res, next) => {
   })
 }
 
+exports.getProducts = (req, res, next) => {
+  Product.findAll()
+    .then((products) => {
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "Admin Products",
+        path: "/admin/products",
+      })
+    })
+    .catch((err) => console.log(err))
+}
+
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title
   const imageUrl = req.body.imageUrl
@@ -64,18 +76,6 @@ exports.postEditProduct = (req, res, next) => {
     .then(console.log("Updated product"))
     .catch((err) => console.log(err))
   res.redirect("/admin/products")
-}
-
-exports.getProducts = (req, res, next) => {
-  Product.findAll()
-    .then((products) => {
-      res.render("admin/products", {
-        prods: products,
-        pageTitle: "Admin Products",
-        path: "/admin/products",
-      })
-    })
-    .catch((err) => console.log(err))
 }
 
 exports.postDeleteProduct = (req, res, next) => {
