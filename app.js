@@ -26,7 +26,8 @@ app.use(express.static(path.join(__dirname, "public")))
 app.use((req, res, next) => {
   User.findByPk(1)
     .then((user) => {
-      req.user = user
+      req.user = user //Nacin za definisanje globalnog middleware,pomocu ovoga user i njegove instance iz baze podataka ce
+      //biti vidljive svuda u kodu
       next()
     })
     .catch((err) => console.log(err))
