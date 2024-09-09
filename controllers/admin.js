@@ -2,9 +2,10 @@ const Product = require("../models/product")
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
+    //Nebitno je ime view fajlova
     pageTitle: "Add Product",
     path: "/admin/add-product",
-    editing: false,
+    editing: false, //Varijabla pomocu koje se vrsi kondicionalni rendering
   })
 }
 
@@ -15,6 +16,7 @@ exports.postAddProduct = (req, res, next) => {
   const description = req.body.description
   req.user
     .createProduct({
+      //Funkcija koja pripada Sequelize i to pomocu definisanja u app
       title: title,
       price: price,
       imageUrl: imageUrl,
