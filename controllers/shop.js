@@ -43,10 +43,10 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
+    .getCart() //Sequelize metoda za dohvatanje korpe
     .then((cart) => {
       return cart
-        .getProducts()
+        .getProducts() //Sequelize metoda za dohvatanje stvari iz korpe
         .then((products) => {
           res.render("shop/cart", {
             path: "/cart",
@@ -64,26 +64,30 @@ exports.postCart = (req, res, next) => {
   let fetchedCart
   let newQuantity = 1
   req.user
-    .getCart()
+    .getCart() //Preuzimamo trenutnu korpu proizvoda
     .then((cart) => {
       fetchedCart = cart
-      return cart.getProducts({ where: { id: prodId } })
+      return cart.getProducts({ where: { id: prodId } }) //Provera da li proizvod sa tim id postoji u korpi,i vracamo to stanje korpe,koje se cuva u varijacbli fetchedCart
     })
     .then((products) => {
+      //Ako proizvod postoji,uzima se samo prvi proizvod
       let product
       if (products.length > 0) {
         product = products[0]
       }
 
       if (product) {
-        const oldQuantity = product.cartItem.quantity
-        newQuantity = oldQuantity + 1
-        return product
+        //Proveravamo da li taj proizvod postoji u korpi
+
+        const oldQuantity = product.cartItem.quantity //Ako proizvod postoji u korpi uzima se njegova trenunta kolicina
+        newQuantity = oldQuantity + 1 //Nakon toga trenutnu kolicinu uvecavamo za 1 i cuvamo u novoj varijabli,sto znaci da ce se newQuantity azurirati samo u ovom slucaju kada je produkt vec pristuan u korpi.U slucaju kada nije,njena vrednost ce ostati 1
+        return product //Vracamo produkt sa azuriranom kolicinom
       }
-      return Product.findByPk(prodId)
+      return Product.findByPk(prodId) //Ako proizvod ne postoji u korpi,koristi se findByPk da bi se proivod preuzeo iz baze podataka
     })
     .then((product) => {
       return fetchedCart.addProduct(product, {
+        //Dodavanje novog proizvoda u korpu ili azuriranje kolicine starog proizvoda,koristeci newQuantity vraijablu,koja u prvom slucaju iznosi 1 a ukoliko proizvod vec postoji u korpi povecava se za 1
         through: { quantity: newQuantity },
       })
     })
@@ -116,15 +120,17 @@ exports.postOrder = (req, res, next) => {
     .getCart()
     .then((cart) => {
       fetchedCart = cart
-      return cart.getProducts()
+      return cart.getProducts() //Dohvatamo sve proizvode iz jedne korpe i cuvamo ih u fetchedCart varijabli
     })
     .then((products) => {
       return req.user
-        .createOrder()
+        .createOrder() //Kreiramo porudzbinu
         .then((order) => {
           return order.addProducts(
+            //Svakoj porudzbini dodajemo produkte
             products.map((product) => {
-              product.orderItem = { quantity: product.cartItem.quantity }
+              //Prolazimo kroz svaki produkt pomocu map
+              product.orderItem = { quantity: product.cartItem.quantity } //Dodajemo kolicinu proizvoda u orderItem da bude ekvivalentna kolicini iz cartItem
               return product
             })
           )
@@ -132,7 +138,7 @@ exports.postOrder = (req, res, next) => {
         .catch((err) => console.log(err))
     })
     .then((result) => {
-      return fetchedCart.setProducts(null)
+      return fetchedCart.setProducts(null) //Brisanje proizvoda iz korpe
     })
     .then((result) => {
       res.redirect("/orders")
