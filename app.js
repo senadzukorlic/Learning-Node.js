@@ -68,18 +68,21 @@ Order.belongsToMany(Product, { through: OrderItem })
 sequelize
   // .sync({ force: true })
   .sync()
-  .then((result) => {
-    return User.findByPk(1)
-  })
-  .then((user) => {
-    if (!user) {
-      return User.create({ name: "Max", email: "test@test.com" })
-    }
-    return user
-  })
-  .then((user) => {
-    return user.createCart()
-  })
+  // .then((result) => {
+  //   return User.findByPk(1)
+  // })
+  // .then((user) => {
+  //   if (!user) {                 Nacin za kreiranje laznog korisnika
+  //     return User.create({
+  //       email: "dakaaa01@gmail.com",
+  //       password: "IslamIman1",
+  //     })
+  //   }
+  //   return user
+  // })
+  // .then((user) => {
+  //   return user.createCart()
+  // })
   .then((cart) => {
     app.listen(3000)
   })
