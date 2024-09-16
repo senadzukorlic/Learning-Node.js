@@ -41,10 +41,22 @@ app.use(
   })
 )
 
+// app.use((req, res, next) => {
+//   User.findByPk(1)
+//     .then((user) => {
+//       req.user = user //Nacin za definisanje globalnog middleware,pomocu ovoga user i njegove instance iz baze podataka ce biti vidljive svuda u kodu
+//       next()
+//     })
+//     .catch((err) => console.log(err))
+// })
+
 app.use((req, res, next) => {
-  User.findByPk(1)
+  if (!req.session.user) {
+    return next()
+  }
+  User.findByPk(req.session.user.id)
     .then((user) => {
-      req.user = user //Nacin za definisanje globalnog middleware,pomocu ovoga user i njegove instance iz baze podataka ce biti vidljive svuda u kodu
+      req.user = user
       next()
     })
     .catch((err) => console.log(err))
