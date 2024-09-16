@@ -11,8 +11,8 @@ const User = sequelize.define(
       allowNull: false,
       primaryKey: true,
     },
-    email: { type: Sequelize.STRING, require: true },
-    password: { type: Sequelize.STRING, require: true },
+    email: { type: Sequelize.STRING, require: true, allowNull: false },
+    password: { type: Sequelize.STRING, require: true, allowNull: false },
   },
   {
     timestamps: true,
