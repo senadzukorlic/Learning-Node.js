@@ -19,7 +19,7 @@
     "express": "^5.0.0",
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.0",
-    "mysql2": "^3.11.2",
+    "mysql2": "^3.11.3",
     "sequelize": "^6.37.3"
   }
 }

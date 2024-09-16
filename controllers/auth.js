@@ -20,7 +20,24 @@ exports.postLogin = (req, res, next) => {
   res.redirect("/")
 }
 
-exports.postSignup = (req, res, next) => {}
+exports.postSignup = (req, res, next) => {
+  const email = req.body.email
+  const password = req.body.password
+  const confrimPassword = req.body.confrimPassword
+  User.findOne({ where: { email: email } })
+    .then((userDoc) => {
+      if (userDoc) {
+        return res.redirect("/signup")
+      }
+      return User.create({ email: email, password: password })
+    })
+    .then((result) => {
+      res.redirect("/login")
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
