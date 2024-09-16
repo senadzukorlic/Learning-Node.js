@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs")
 const User = require("../models/user")
 
 exports.getLogin = (req, res, next) => {
@@ -29,7 +30,10 @@ exports.postSignup = (req, res, next) => {
       if (userDoc) {
         return res.redirect("/signup")
       }
-      return User.create({ email: email, password: password })
+      return bcrypt.hash(password, 12) //nacin za hesiranje lozinke
+    })
+    .then((hashedPassword) => {
+      return User.create({ email: email, password: hashedPassword })
     })
     .then((result) => {
       res.redirect("/login")
