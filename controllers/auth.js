@@ -10,13 +10,8 @@ exports.getLogin = (req, res, next) => {
 }
 
 exports.postLogin = (req, res, next) => {
-  User.findByPk(1)
-    .then((user) => {
-      req.session.isLoggedIn = true
-      req.session.user = user
-      res.redirect("/")
-    })
-    .then((err) => console.log(err))
+  req.session.isLoggedIn = true
+  res.redirect("/")
 }
 
 exports.postLogout = (req, res, next) => {
