@@ -48,17 +48,21 @@ exports.getCart = (req, res, next) => {
   req.user
     .getCart() //Sequelize metoda za dohvatanje korpe
     .then((cart) => {
+      if (!cart) {
+        return req.user.createCart()
+      }
       return cart
-        .getProducts() //Sequelize metoda za dohvatanje stvari iz korpe
-        .then((products) => {
-          res.render("shop/cart", {
-            path: "/cart",
-            pageTitle: "Your Cart",
-            products: products,
-            isAuthenticated: req.session.isLoggedIn,
-          })
-        })
-        .catch((err) => console.log(err))
+    })
+    .then((cart) => {
+      return cart.getProducts() //Sequelize metoda za dohvatanje stvari iz korpe
+    })
+    .then((products) => {
+      res.render("shop/cart", {
+        path: "/cart",
+        pageTitle: "Your Cart",
+        products: products,
+        isAuthenticated: req.session.isLoggedIn,
+      })
     })
     .catch((err) => console.log(err))
 }
@@ -70,6 +74,8 @@ exports.postCart = (req, res, next) => {
   req.user
     .getCart() //Preuzimamo trenutnu korpu proizvoda
     .then((cart) => {
+      console.log(cart)
+
       fetchedCart = cart
       return cart.getProducts({ where: { id: prodId } }) //Provera da li proizvod sa tim id postoji u korpi,i vracamo to stanje korpe,koje se cuva u varijacbli fetchedCart
     })
