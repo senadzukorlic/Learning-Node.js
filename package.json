@@ -11,11 +11,12 @@
   "author": "Maximilian Schwarzmüller",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.5"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^2.0.1",
+    "csurf": "^1.11.0",
     "ejs": "^3.1.10",
     "express": "^5.0.0",
     "express-mysql-session": "^3.0.3",
