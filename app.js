@@ -41,22 +41,13 @@ app.use(
   })
 )
 
-// app.use((req, res, next) => {
-//   User.findByPk(1)
-//     .then((user) => {
-//       req.user = user //Nacin za definisanje globalnog middleware,pomocu ovoga user i njegove instance iz baze podataka ce biti vidljive svuda u kodu
-//       next()
-//     })
-//     .catch((err) => console.log(err))
-// })
-
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next()
   }
   User.findByPk(req.session.user.id)
     .then((user) => {
-      req.user = user
+      req.user = user //Nacin za definisanje globalnog middleware,pomocu ovoga user i njegove instance iz baze podataka ce biti vidljive svuda u kodu
       next()
     })
     .catch((err) => console.log(err))
@@ -78,23 +69,7 @@ User.hasMany(Order)
 Order.belongsToMany(Product, { through: OrderItem })
 
 sequelize
-  // .sync({ force: true })
   .sync()
-  // .then((result) => {
-  //   return User.findByPk(1)
-  // })
-  // .then((user) => {
-  //   if (!user) {                 Nacin za kreiranje laznog korisnika
-  //     return User.create({
-  //       email: "dakaaa01@gmail.com",
-  //       password: "IslamIman1",
-  //     })
-  //   }
-  //   return user
-  // })
-  // .then((user) => {
-  //   return user.createCart()
-  // })
   .then((cart) => {
     app.listen(3000)
   })
