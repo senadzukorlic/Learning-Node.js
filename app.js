@@ -5,6 +5,7 @@ const bodyParser = require("body-parser")
 const session = require("express-session")
 const MySQLStore = require("express-mysql-session")(session)
 const csrf = require("csurf")
+const flash = require("connect-flash")
 
 const errorController = require("./controllers/error")
 const sequelize = require("./util/database")
@@ -42,7 +43,10 @@ app.use(
     store: store,
   })
 )
+
 app.use(csrfProtection)
+app.use(flash())
+
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next()
@@ -56,7 +60,7 @@ app.use((req, res, next) => {
 })
 
 app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedIn
+  res.locals.isAuthenticated = req.session.isLoggedIn //'locals' je instanca koja omogucava da sacuvamo lokalnu varijab
   res.locals.csrfToken = req.csrfToken()
   next()
 })
