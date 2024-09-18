@@ -1,5 +1,16 @@
 const bcrypt = require("bcryptjs")
 const User = require("../models/user")
+const nodemailer = require("nodemailer")
+const mailgunTransport = require("nodemailer-mailgun-transport")
+
+const transporter = nodemailer.createTransport(
+  mailgunTransport({
+    auth: {
+      api_key: "b01937d80be5a6ed1ca49fe69b2f04e0-7a3af442-b55b3f05",
+      domain: "sandbox82f0563902d4430782a3f16198a37928.mailgun.org",
+    },
+  })
+)
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error") // posto se flash poruke cuvaju u nizu([]),izdvojicemo text iz niza,da bi rukovali njegovim prikazivanjem,ako to ne uradimo,prikazivace se div od 'flasha',cak i kada su podaci ispravni i nema poruke o gresi
@@ -38,12 +49,14 @@ exports.postLogin = (req, res, next) => {
         return res.redirect("/login")
       }
       bcrypt
-        .compare(password, user.password)
+        .compare(password, user.password) //koristi se za proveru da li je prva vrednosti(password) koju je korisnik uneo,jednaka hesiranoj verziji lozinke koja se nalazi u bazi podataka.
         .then((doMatch) => {
           if (doMatch) {
+            //Ako je lozinka odgovarajuca,postavljamo loggedIn na true i postavljamo sesiju korisnika
             req.session.isLoggedIn = true
-            req.session.user = { id: user.id, email: user.email }
+            req.session.user = user
             return req.session.save((err) => {
+              //neophodno je sacuvati sesiju
               console.log(err)
               res.redirect("/")
             })
@@ -69,14 +82,41 @@ exports.postSignup = (req, res, next) => {
         req.flash("error", "E-mail exists already,please pick a different one.")
         return res.redirect("/signup")
       }
-      return bcrypt.hash(password, 12) //nacin za hesiranje lozinke
+      return bcrypt.hash(password, 12) //nacin za hesiranje lozinke,ako ne postoji user sa unetim emailom,sifru koju je uneo cemo hesirati ovim postupkom.Broj 12 se odnosi na broj puta koliko bcrypt primeni svoj alogirtam na lozinku.Sto vise puta to je sigurnije,ali sporije,zbog toga 12 idealno.
     })
     .then((hashedPassword) => {
-      return User.create({ email: email, password: hashedPassword })
+      return User.create({ email: email, password: hashedPassword }) //Nakon toga kreiramo novog korisnika sa emailom koji je uneo, i sifrom,koju smo hesirali
     })
     .then((result) => {
       res.redirect("/login")
+      console.log("Attempting to send email...") // Dodajte ovu liniju
+      return transporter
+        .sendMail({
+          to: email,
+          from: "shop@node-complete.com",
+          subject: "Signup succeeded!",
+          html: "<h1>You successfully signed up!</h1>",
+        })
+        .then((info) => {
+          console.log("Email sent successfully:", info) // Dodajte ovu liniju
+        })
+        .catch((err) => {
+          console.log("Error sending email:", err) // Dodajte ovu liniju
+        })
     })
+    // .then((result) => {
+    //   res.redirect("/login")
+    //   return transporter
+    //     .sendMail({
+    //       to: email,
+    //       from: "shop@node-complete.com",
+    //       subject: "Signup succeeded!",
+    //       html: "<h1>You successfuly signed up!</h1>",
+    //     })
+    //     .catch((err) => {
+    //       console.log(err)
+    //     })
+    // })
     .catch((err) => {
       console.log(err)
     })
