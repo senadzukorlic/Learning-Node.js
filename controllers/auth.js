@@ -2,16 +2,29 @@ const bcrypt = require("bcryptjs")
 const User = require("../models/user")
 
 exports.getLogin = (req, res, next) => {
+  let message = req.flash("error") // posto se flash poruke cuvaju u nizu([]),izdvojicemo text iz niza,da bi rukovali njegovim prikazivanjem,ako to ne uradimo,prikazivace se div od 'flasha',cak i kada su podaci ispravni i nema poruke o gresi
+  if (message.length > 0) {
+    message = message[0]
+  } else {
+    message = null
+  }
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    errorMessage: req.flash("error"),
+    errorMessage: message,
   })
 }
 exports.getSignup = (req, res, next) => {
+  let message = req.flash("error")
+  if (message.length > 0) {
+    message = message[0]
+  } else {
+    message = null
+  }
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
+    errorMessage: message,
   })
 }
 
@@ -21,7 +34,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ where: { email: email } })
     .then((user) => {
       if (!user) {
-        req.flash("error", "Invalid email or password.")
+        req.flash("error", "Invalid email or password.") //error je kljuc koji se koristi za prepoznavanje
         return res.redirect("/login")
       }
       bcrypt
@@ -35,6 +48,7 @@ exports.postLogin = (req, res, next) => {
               res.redirect("/")
             })
           }
+          req.flash("error", "Invalid email or password.")
           res.redirect("/login")
         })
         .catch((err) => {
@@ -52,6 +66,7 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ where: { email: email } })
     .then((userDoc) => {
       if (userDoc) {
+        req.flash("error", "E-mail exists already,please pick a different one.")
         return res.redirect("/signup")
       }
       return bcrypt.hash(password, 12) //nacin za hesiranje lozinke
