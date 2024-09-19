@@ -6,7 +6,7 @@ const mailgunTransport = require("nodemailer-mailgun-transport")
 const transporter = nodemailer.createTransport(
   mailgunTransport({
     auth: {
-      api_key: "b01937d80be5a6ed1ca49fe69b2f04e0-7a3af442-b55b3f05",
+      api_key: "9a8b4d50d90a048e9d2de6198e8a63e7-7a3af442-763d69ba",
       domain: "sandbox82f0563902d4430782a3f16198a37928.mailgun.org",
     },
   })
@@ -89,7 +89,7 @@ exports.postSignup = (req, res, next) => {
     })
     .then((result) => {
       res.redirect("/login")
-      console.log("Attempting to send email...") // Dodajte ovu liniju
+      console.log("Attempting to send email...")
       return transporter
         .sendMail({
           to: email,
@@ -98,25 +98,13 @@ exports.postSignup = (req, res, next) => {
           html: "<h1>You successfully signed up!</h1>",
         })
         .then((info) => {
-          console.log("Email sent successfully:", info) // Dodajte ovu liniju
+          console.log("Email sent successfully:", info)
         })
         .catch((err) => {
-          console.log("Error sending email:", err) // Dodajte ovu liniju
+          console.log("Error sending email:", err)
         })
     })
-    // .then((result) => {
-    //   res.redirect("/login")
-    //   return transporter
-    //     .sendMail({
-    //       to: email,
-    //       from: "shop@node-complete.com",
-    //       subject: "Signup succeeded!",
-    //       html: "<h1>You successfuly signed up!</h1>",
-    //     })
-    //     .catch((err) => {
-    //       console.log(err)
-    //     })
-    // })
+
     .catch((err) => {
       console.log(err)
     })
@@ -126,5 +114,19 @@ exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
     console.log(err)
     res.redirect("/")
+  })
+}
+
+exports.getReset = (req, res, next) => {
+  let message = req.flash("error")
+  if (message.length > 0) {
+    message = message[0]
+  } else {
+    message = null
+  }
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset Password",
+    errorMessage: message,
   })
 }
