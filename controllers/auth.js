@@ -1,16 +1,6 @@
 const bcrypt = require("bcryptjs")
-const User = require("../models/user")
-const nodemailer = require("nodemailer")
-const mailgunTransport = require("nodemailer-mailgun-transport")
-
-const transporter = nodemailer.createTransport(
-  mailgunTransport({
-    auth: {
-      api_key: "9a8b4d50d90a048e9d2de6198e8a63e7-7a3af442-763d69ba",
-      domain: "sandbox82f0563902d4430782a3f16198a37928.mailgun.org",
-    },
-  })
-)
+const User = require("..//models/user")
+const { sendEmail } = require("../mailer")
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error") // posto se flash poruke cuvaju u nizu([]),izdvojicemo text iz niza,da bi rukovali njegovim prikazivanjem,ako to ne uradimo,prikazivace se div od 'flasha',cak i kada su podaci ispravni i nema poruke o gresi
@@ -90,19 +80,9 @@ exports.postSignup = (req, res, next) => {
     .then((result) => {
       res.redirect("/login")
       console.log("Attempting to send email...")
-      return transporter
-        .sendMail({
-          to: email,
-          from: "shop@node-complete.com",
-          subject: "Signup succeeded!",
-          html: "<h1>You successfully signed up!</h1>",
-        })
-        .then((info) => {
-          console.log("Email sent successfully:", info)
-        })
-        .catch((err) => {
-          console.log("Error sending email:", err)
-        })
+
+      const html = "<h1>Your successfully signed up</h1>"
+      return sendEmail(email, html)
     })
 
     .catch((err) => {
