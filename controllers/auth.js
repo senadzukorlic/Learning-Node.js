@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs")
 const crypto = require("crypto")
 const User = require("..//models/user")
+const { Op } = require("sequelize")
 const { sendEmail } = require("../mailer")
 
 exports.getLogin = (req, res, next) => {
@@ -126,7 +127,7 @@ exports.postReset = (req, res, next) => {
       .then((user) => {
         if (!user) {
           req.flash("error", "No account with that email found")
-          return res.redirect("reset")
+          return res.redirect("/reset")
         }
         user.resetToken = token
         user.resetTokenExpiration = Date.now() + 3600000
@@ -142,4 +143,26 @@ exports.postReset = (req, res, next) => {
       })
       .catch((err) => console.log(err))
   })
+}
+
+exports.getNewPassword = (req, res, next) => {
+  const token = req.params.token
+  User.findOne({
+    where: { resetToken: token, resetTokenExpiration: { [Op.gt]: Date.now() } },
+  })
+    .then((user) => {
+      let message = req.flash("error")
+      if (message.length > 0) {
+        message = message[0]
+      } else {
+        message = null
+      }
+      res.render("auth/new-password", {
+        path: "/new-password",
+        pageTitle: "New Password",
+        errorMessage: message,
+        userId: user.id.toString(),
+      })
+    })
+    .catch((err) => console.log(err))
 }
