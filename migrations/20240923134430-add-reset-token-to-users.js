@@ -17,3 +17,5 @@ module.exports = {
     await queryInterface.removeColumn("users", "resetTokenExpiration")
   },
 }
+
+//npx sequelize-cli db:migrate nacin pokertanja migracija
