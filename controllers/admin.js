@@ -62,16 +62,22 @@ exports.postEditProduct = (req, res, next) => {
   const updatedDesc = req.body.description
   Product.findByPk(prodId) //Da bi sacuvali izmene koje je korisnik napravio,moramo pristupiti tom proizvodu u bazi podataka(gde ga cuvamo) i rucno sacuvati izmene na dole prikazan nacin
     .then((product) => {
+      if (product.userId !== req.user.id) {
+        //Linija kojom proveravamo da li je user koji je prijavljen,vlasnik tog producta,ako nije preusmerice nas na pocetnu stranicu,return obezbedjuje da se ostatak koda ne izvrsi ako je gore navedeni uslov tacan
+        return res.redirect("/")
+      }
       product.title = updatedTitle
       product.price = updatedPrice
       product.description = updatedDesc
       product.imageUrl = updatedImageUrl
-      return product.save() //Sequelize metoda koja cuva u bazi podataka
+      return product
+        .save() //Sequelize metoda koja cuva u bazi podataka
+        .then((result) => {
+          console.log("UPDATED PRODUCT!")
+          res.redirect("/admin/products")
+        })
     })
-    .then((result) => {
-      console.log("UPDATED PRODUCT!")
-      res.redirect("/admin/products")
-    })
+
     .catch((err) => console.log(err))
 }
 
@@ -90,7 +96,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId
-  Product.findByPk(prodId)
+  Product.findOne({ where: { id: prodId, userId: req.user.id } })
     .then((product) => {
       return product.destroy() //Takodje Sequelize funkcija koja sluzi za brisanje iz baze
     })
