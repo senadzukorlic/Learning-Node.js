@@ -77,7 +77,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   req.user
-    .getProducts()
+    .getProducts({ where: { userId: req.user.id } }) //Provera(autorizacija)
     .then((products) => {
       res.render("admin/products", {
         prods: products,

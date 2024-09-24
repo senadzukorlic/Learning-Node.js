@@ -168,35 +168,6 @@ exports.getNewPassword = (req, res, next) => {
     .catch((err) => console.log(err))
 }
 
-// exports.postNewPassword = (req, res, next) => {
-//   const newPassword = req.body.password
-//   const userId = req.body.userId
-//   const passwordToken = req.body.passwordToken
-
-//   let resetUser
-//   User.findOne({
-//     resetToken: passwordToken,
-//     resetTokenExpiration: { [Op.gt]: Date.now(), id: userId },
-//   })
-//     .then((user) => {
-//       resetUser = user
-//       bcrypt.hash(newPassword, 12)
-//     })
-//     .then((hashedPassword) => {
-//       resetUser.password = hashedPassword
-//       resetUser.resetToken = undefined
-//       resetUser.resetTokenExpiration = undefined
-//       return resetUser.save
-//     })
-//     .then((result) => {
-//       res.redirect("/login")
-//       const email = resetUser.email // Pribavljanje email adrese korisnika
-//       const html = "<p>You have successfully changed your password.</p>"
-//       return sendEmail(email, html)
-//     })
-//     .catch((err) => console.log(err))
-// }
-
 exports.postNewPassword = (req, res, next) => {
   const newPassword = req.body.password
   const userId = req.body.userId
@@ -222,7 +193,7 @@ exports.postNewPassword = (req, res, next) => {
     })
     .then((result) => {
       res.redirect("/login")
-      const email = resetUser.email // Pribavljanje email adrese korisnika
+      const email = resetUser.email
       const html = "<p>You have successfully changed your password.</p>"
       return sendEmail(email, html)
     })
