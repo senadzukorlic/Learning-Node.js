@@ -70,7 +70,6 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
-  const confrimPassword = req.body.confrimPassword
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/signup", {
@@ -80,14 +79,15 @@ exports.postSignup = (req, res, next) => {
       errorMessage: errors.array()[0].msg,
     })
   }
-  User.findOne({ where: { email: email } })
-    .then((userDoc) => {
-      if (userDoc) {
-        req.flash("error", "E-mail exists already,please pick a different one.")
-        return res.redirect("/signup")
-      }
-      return bcrypt.hash(password, 12) //nacin za hesiranje lozinke,ako ne postoji user sa unetim emailom,sifru koju je uneo cemo hesirati ovim postupkom.Broj 12 se odnosi na broj puta koliko bcrypt primeni svoj alogirtam na lozinku.Sto vise puta to je sigurnije,ali sporije,zbog toga 12 idealno.
-    })
+  // User.findOne({ where: { email: email } })
+  //   .then((userDoc) => {
+  //     if (userDoc) {
+  //       req.flash("error", "E-mail exists already,please pick a different one.")
+  //       return res.redirect("/signup")
+  //     }
+  bcrypt
+    .hash(password, 12) //nacin za hesiranje lozinke,ako ne postoji user sa unetim emailom,sifru koju je uneo cemo hesirati ovim postupkom.Broj 12 se odnosi na broj puta koliko bcrypt primeni svoj alogirtam na lozinku.Sto vise puta to je sigurnije,ali sporije,zbog toga 12 idealno.
+    // })
     .then((hashedPassword) => {
       return User.create({ email: email, password: hashedPassword }) //Nakon toga kreiramo novog korisnika sa emailom koji je uneo, i sifrom,koju smo hesirali
     })
