@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs")
 const crypto = require("crypto")
 const User = require("..//models/user")
-const { Op } = require("sequelize")
+const { Op, ValidationError } = require("sequelize")
 const { sendEmail } = require("../mailer")
 const { validationResult } = require("express-validator")
 
@@ -34,6 +34,7 @@ exports.getSignup = (req, res, next) => {
       password: "",
       confirmPassword: "",
     },
+    validationErrors: [],
   })
 }
 
@@ -96,6 +97,7 @@ exports.postSignup = (req, res, next) => {
         password: password,
         confirmPassword: req.body.confirmPassword,
       },
+      validationErrors: errors.array(),
     })
   }
   // User.findOne({ where: { email: email } })
