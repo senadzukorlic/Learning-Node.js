@@ -77,7 +77,7 @@ exports.postSignup = (req, res, next) => {
       //statusni kod koji pokazuje da validacija nije uspela
       path: "/signup",
       pageTitle: "Signup",
-      errorMessage: errors.array(),
+      errorMessage: errors.array()[0].msg,
     })
   }
   User.findOne({ where: { email: email } })
