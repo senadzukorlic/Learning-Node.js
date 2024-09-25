@@ -29,12 +29,26 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   })
 }
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
+
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      errorMessage: errors.array()[0].msg,
+    })
+  }
   User.findOne({ where: { email: email } })
     .then((user) => {
       if (!user) {
@@ -73,10 +87,15 @@ exports.postSignup = (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/signup", {
-      //statusni kod koji pokazuje da validacija nije uspela
+      //statusni kod koji pokazuje da validacija nije uspela,i renderuje view gde se prikazuje poruke o greskama prilikom validacije
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: req.body.confirmPassword,
+      },
     })
   }
   // User.findOne({ where: { email: email } })
