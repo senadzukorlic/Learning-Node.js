@@ -3,6 +3,7 @@ const crypto = require("crypto")
 const User = require("..//models/user")
 const { Op } = require("sequelize")
 const { sendEmail } = require("../mailer")
+const { validationResult } = require("express-validator")
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error") // posto se flash poruke cuvaju u nizu([]),izdvojicemo text iz niza,da bi rukovali njegovim prikazivanjem,ako to ne uradimo,prikazivace se div od 'flasha',cak i kada su podaci ispravni i nema poruke o gresi
@@ -70,6 +71,15 @@ exports.postSignup = (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
   const confrimPassword = req.body.confrimPassword
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/signup", {
+      //statusni kod koji pokazuje da validacija nije uspela
+      path: "/signup",
+      pageTitle: "Signup",
+      errorMessage: errors.array(),
+    })
+  }
   User.findOne({ where: { email: email } })
     .then((userDoc) => {
       if (userDoc) {
