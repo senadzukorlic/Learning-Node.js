@@ -1,10 +1,14 @@
 const Product = require("../models/product")
+const { check } = require("express-validator")
+const { validationResult } = require("express-validator")
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     //Nebitno je ime view fajlova
     pageTitle: "Add Product",
     path: "/admin/add-product",
+    errorMessage: null,
+    hasError: false,
     editing: false, //Varijabla pomocu koje se vrsi kondicionalni rendering i prikazuje html/ejs fajl koji je forma za kreiranje produkta
   })
 }
@@ -14,6 +18,22 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl
   const price = req.body.price
   const description = req.body.description
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/edit-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      errorMessage: errors.array()[0].msg,
+    })
+  }
   req.user
     .createProduct({
       //Funkcija koja pripada Sequelize i to pomocu definisanja u app
@@ -49,6 +69,8 @@ exports.getEditProduct = (req, res, next) => {
         path: "/admin/edit-product",
         editing: editMode,
         product: product,
+        hasError: false,
+        errorMessage: null,
       })
     })
     .catch((err) => console.log(err))
