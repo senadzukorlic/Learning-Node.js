@@ -1,5 +1,5 @@
 const Product = require("../models/product")
-const { check } = require("express-validator")
+
 const { validationResult } = require("express-validator")
 
 exports.getAddProduct = (req, res, next) => {
@@ -9,6 +9,7 @@ exports.getAddProduct = (req, res, next) => {
     path: "/admin/add-product",
     errorMessage: null,
     hasError: false,
+    validationErrors: [],
     editing: false, //Varijabla pomocu koje se vrsi kondicionalni rendering i prikazuje html/ejs fajl koji je forma za kreiranje produkta
   })
 }
@@ -32,6 +33,7 @@ exports.postAddProduct = (req, res, next) => {
         description: description,
       },
       errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
     })
   }
   req.user
@@ -71,6 +73,7 @@ exports.getEditProduct = (req, res, next) => {
         product: product,
         hasError: false,
         errorMessage: null,
+        validationErrors: [],
       })
     })
     .catch((err) => console.log(err))
@@ -82,6 +85,24 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price
   const updatedImageUrl = req.body.imageUrl
   const updatedDesc = req.body.description
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Edit Product",
+      path: "/admin/edit-product",
+      editing: true,
+      hasError: true,
+      product: {
+        title: updatedTitle,
+        imageUrl: updatedImageUrl,
+        price: updatedPrice,
+        description: updatedDesc,
+        id: prodId,
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+    })
+  }
   Product.findByPk(prodId) //Da bi sacuvali izmene koje je korisnik napravio,moramo pristupiti tom proizvodu u bazi podataka(gde ga cuvamo) i rucno sacuvati izmene na dole prikazan nacin
     .then((product) => {
       if (product.userId !== req.user.id) {
