@@ -4,7 +4,7 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const session = require("express-session")
 const MySQLStore = require("express-mysql-session")(session)
-const csrf = require("csurf")
+const csrf = require("csurf") //Paket koji sluzi za zastitu korisnika,koristi se da obezbedi korisnika tako što osigurava da svaka forma ili zahtev koji menja stanje na serveru dolazi iz legitimnog izvora
 const flash = require("connect-flash")
 
 const errorController = require("./controllers/error")
@@ -60,7 +60,7 @@ app.use((req, res, next) => {
 })
 
 app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedIn //'locals' je instanca koja omogucava da sacuvamo lokalnu varijab
+  res.locals.isAuthenticated = req.session.isLoggedIn //izraz levo od = se koristi da bismo mogli isAuthenticated da prosledimo kao odgovor u nasim view fajlovima.Res se koristi jer ono sto se nalazi u view fajlovima se salje klijentu,pa samim tim je to response,a izraz desno se koristi da pristupi sesijskom objektu korisnika i proverava da li je korisnik trenutno prijavljen,sto znaci da isLoggenIn moze biti samo true ili false.'locals' je instanca koja omogucava da sacuvamo lokalnu varijab
   res.locals.csrfToken = req.csrfToken()
   next()
 })
@@ -88,3 +88,6 @@ sequelize
   .catch((err) => {
     console.log(err)
   })
+
+//VAZNE STVARI ZA NAPOMENU:
+//1.Csrf (CsrfProtection) middleware se koristi da kreira csrf token,koji ce se ugraditi da bude sastavni deo fomri koje se renderuju klijentu (frontendu) i u kojima klijent unosi svoje osetljive podatke,kada forme sa korisnickim podacima budu nazad poslate serveru(bekendu),one ce sadrzati csrf token.CsrfProtection midlleware koji je definisan u app,uporedice prvobinto scrfToken koji se nalazio na frontendu pre nego sto je forma poslata,sa scrfToken koji je poslat serveru,ako token ne budu iste vrednosti radnja ce se ponistiti i time ce se korisnik zastitit od potencijalnih napada.

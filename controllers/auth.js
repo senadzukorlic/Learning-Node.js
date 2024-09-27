@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs")
 const crypto = require("crypto")
 const User = require("..//models/user")
-const { Op, ValidationError } = require("sequelize")
+const { Op } = require("sequelize")
 const { sendEmail } = require("../mailer")
 const { validationResult } = require("express-validator")
 
@@ -44,14 +44,16 @@ exports.postLogin = (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
 
-  const errors = validationResult(req)
+  const errors = validationResult(req) //provjerava rezultate svih prethodno definiranih validacija za trenutni zahtjev (req) i vraća objekt koji sadrži informacije o svim pronađenim greškama
   if (!errors.isEmpty()) {
+    //Ako errors nije prazan
     return res.status(422).render("auth/login", {
+      //redneruj stranicu login
       path: "/login",
       pageTitle: "Login",
-      errorMessage: errors.array()[0].msg,
-      oldInput: { email: email, password: password },
-      validationErrors: errors.array(),
+      errorMessage: errors.array()[0].msg, //u errorMessage divu prikazi prvu gresku iz niza errors(mora ovakav nacin)
+      oldInput: { email: email, password: password }, //nakon sto se izvrsi zahtev za postavljanje,vrati vrednosti u input koje je korisnik prethodno uneo,zbog boljeg korisnickog iskustva
+      validationErrors: errors.array(), //instanca koja se koristi u view za rukovanje prikaza crvenog bordera kada postoji errorMessage
     })
   }
   User.findOne({ where: { email: email } })
@@ -87,7 +89,7 @@ exports.postLogin = (req, res, next) => {
           return res.status(422).render("auth/login", {
             path: "/login",
             pageTitle: "Login",
-            errorMessage: errors.array()[0].msg,
+            errorMessage: "Invalid email or password.",
             oldInput: { email: email, password: password },
             validationErrors: [],
           })
@@ -250,3 +252,6 @@ exports.postNewPassword = (req, res, next) => {
 }
 
 // zukorlic.sen123@gmail.com
+
+//VAZNE STVARI ZA NAPOMENU:
+//1.Lozinka se hesira pri kreiranju naloga
