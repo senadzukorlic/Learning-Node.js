@@ -6,7 +6,7 @@ const { sendEmail } = require("../mailer")
 const { validationResult } = require("express-validator")
 
 exports.getLogin = (req, res, next) => {
-  let message = req.flash("error") // posto se flash poruke cuvaju u nizu([]),izdvojicemo text iz niza,da bi rukovali njegovim prikazivanjem,ako to ne uradimo,prikazivace se div od 'flasha',cak i kada su podaci ispravni i nema poruke o gresi
+  let message = req.flash("error") // kada se koristi ovaj izraz req.flash("error"),bez vrednosti vec samo sa kljucem (error),to znaci da samo preuzimamo sve poruke koje su ranije postavljene pod kljucem error(to su slucajevi kada se trebaju prikazati greske koje su napravljene prilikom post zahteva).posto se flash poruke cuvaju u nizu([]),izdvojicemo text iz niza,da bi rukovali njegovim prikazivanjem,ako to ne uradimo,prikazivace se div od 'flasha',cak i kada su podaci ispravni i nema poruke o gresi
   if (message.length > 0) {
     message = message[0]
   } else {

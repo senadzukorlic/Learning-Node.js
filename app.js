@@ -5,7 +5,7 @@ const bodyParser = require("body-parser")
 const session = require("express-session")
 const MySQLStore = require("express-mysql-session")(session)
 const csrf = require("csurf") //Paket koji sluzi za zastitu korisnika,koristi se da obezbedi korisnika tako što osigurava da svaka forma ili zahtev koji menja stanje na serveru dolazi iz legitimnog izvora
-const flash = require("connect-flash")
+const flash = require("connect-flash") // paket koji omogućava čuvanje i prikazivanje poruka između različitih HTTP zahteva
 
 const errorController = require("./controllers/error")
 const sequelize = require("./util/database")
@@ -61,7 +61,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn //izraz levo od = se koristi da bismo mogli isAuthenticated da prosledimo kao odgovor u nasim view fajlovima.Res se koristi jer ono sto se nalazi u view fajlovima se salje klijentu,pa samim tim je to response,a izraz desno se koristi da pristupi sesijskom objektu korisnika i proverava da li je korisnik trenutno prijavljen,sto znaci da isLoggenIn moze biti samo true ili false.'locals' je instanca koja omogucava da sacuvamo lokalnu varijab
-  res.locals.csrfToken = req.csrfToken()
+  res.locals.csrfToken = req.csrfToken() //Isto kao gore navedenog objasnjna
   next()
 })
 
