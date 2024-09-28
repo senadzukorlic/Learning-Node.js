@@ -81,8 +81,6 @@ exports.postLogin = (req, res, next) => {
               //neophodno je sacuvati sesiju
               console.log(err)
               res.redirect("/")
-              const html = "<h1>Your successfully login</h1>"
-              return sendEmail(email, html)
             })
           }
 

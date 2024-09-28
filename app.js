@@ -3,7 +3,7 @@ const path = require("path")
 const express = require("express")
 const bodyParser = require("body-parser")
 const session = require("express-session")
-const MySQLStore = require("express-mysql-session")(session)
+const MySQLStore = require("express-mysql-session")(session) //dodatak koji omogućava čuvanje sesija u MySQL bazi
 const csrf = require("csurf") //Paket koji sluzi za zastitu korisnika,koristi se da obezbedi korisnika tako što osigurava da svaka forma ili zahtev koji menja stanje na serveru dolazi iz legitimnog izvora
 const flash = require("connect-flash") // paket koji omogućava čuvanje i prikazivanje poruka između različitih HTTP zahteva
 
@@ -16,7 +16,6 @@ const CartItem = require("./models/cart-item")
 const Order = require("./models/order")
 const OrderItem = require("./models/order-item")
 
-const app = express()
 const store = new MySQLStore({
   host: "localhost",
   port: 3306,
@@ -25,6 +24,8 @@ const store = new MySQLStore({
   database: "node-complete",
 })
 const csrfProtection = csrf()
+
+const app = express()
 
 app.set("view engine", "ejs")
 app.set("views", "views")
@@ -37,9 +38,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, "public")))
 app.use(
   session({
-    secret: "my secret",
-    resave: false,
-    saveUninitialized: false,
+    secret: "my secret", // tajni ključ koji se koristi za potpisivanje ID-a sesije
+    resave: false, // sesija neće biti sačuvana ponovo ako se nije menjala
+    saveUninitialized: false, // nečuvanje neinicijalizovanih sesija
     store: store,
   })
 )
