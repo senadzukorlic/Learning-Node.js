@@ -47,17 +47,8 @@ app.use(
 app.use(csrfProtection)
 app.use(flash())
 
-app.use((req, res, next) => {
-  if (!req.session.user) {
-    return next()
-  }
-  User.findByPk(req.session.user.id)
-    .then((user) => {
-      req.user = user //Nacin za definisanje globalnog middleware,pomocu ovoga user i njegove instance iz baze podataka ce biti vidljive svuda u kodu
-      next()
-    })
-    .catch((err) => console.log(err))
-})
+const userSession = require("./middleware/user-session")
+app.use(userSession)
 
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn //izraz levo od = se koristi da bismo mogli isAuthenticated da prosledimo kao odgovor u nasim view fajlovima.Res se koristi jer ono sto se nalazi u view fajlovima se salje klijentu,pa samim tim je to response,a izraz desno se koristi da pristupi sesijskom objektu korisnika i proverava da li je korisnik trenutno prijavljen,sto znaci da isLoggenIn moze biti samo true ili false.'locals' je instanca koja omogucava da sacuvamo lokalnu varijab
