@@ -55,6 +55,7 @@ exports.postLogin = (req, res, next) => {
       oldInput: { email: email, password: password }, //nakon sto se izvrsi zahtev za postavljanje,vrati vrednosti u input koje je korisnik prethodno uneo,zbog boljeg korisnickog iskustva
       validationErrors: errors.array(), //instanca koja se koristi u view za rukovanje prikaza crvenog bordera kada postoji errorMessage
     })
+    //U slucaju da ima validacionih gresaka,renderujemo te greske i cuvamo prvobitno unete vrednosti zbog boljeg korisnickog iskustva
   }
   User.findOne({ where: { email: email } })
     .then((user) => {
@@ -64,26 +65,26 @@ exports.postLogin = (req, res, next) => {
           pageTitle: "Login",
           errorMessage:
             errors.array().length > 0
-              ? errors.array()[0].msg
+              ? errors.array()[0].msg //U slucaju da nije pronadjen korisnik,ili ispisi poruku koja je sacuvana u error nizu ili je u pitanju neispravna input vrednost
               : "Invalid email or password",
           oldInput: { email: email, password: password },
           validationErrors: [],
         })
       }
       bcrypt
-        .compare(password, user.password) //koristi se za proveru da li je prva vrednosti(password) koju je korisnik uneo,jednaka hesiranoj verziji lozinke koja se nalazi u bazi podataka.
+        .compare(password, user.password) //koristi se za proveru da li je prva vrednosti(password) koju je korisnik uneo,jednaka hesiranoj verziji lozinke koja se nalazi u bazi podataka.Znaci proveravamo lozinku korisnika koja je sacuvana u bazi pri registraciji instancom user.password,sa lozinkom koju je user uneo neposredno pre slanja zateva serveru
         .then((doMatch) => {
           if (doMatch) {
             //Ako je lozinka odgovarajuca,postavljamo loggedIn na true i postavljamo sesiju korisnika
-            req.session.isLoggedIn = true
-            req.session.user = user
+            req.session.isLoggedIn = true //ovo sluzi samo kao flag u view engine,tj. kao znak da je sesija aktivna,da bi kasnije mogli da ogranicavamo funkcionalnosti korisnika na osnovu toga imaju li aktivnu sesiju ili ne
+            req.session.user = user //ovim izrazom cuvamo korisnice informacije u sesiji(kao sto su predmeti,korpe,narudzbine...)
             return req.session.save((err) => {
               //neophodno je sacuvati sesiju
               console.log(err)
               res.redirect("/")
             })
           }
-
+          // u slucaju da se uneta lozinka ne podudara sa hesiranom,ispisati da je problem u unosu i sacuvati stare pogresno unete vrednosti
           return res.status(422).render("auth/login", {
             path: "/login",
             pageTitle: "Login",
@@ -166,11 +167,12 @@ exports.getReset = (req, res, next) => {
 
 exports.postReset = (req, res, next) => {
   crypto.randomBytes(32, (err, buffer) => {
+    //kreiranje nasumicnog niza bajtova duzine 32,u pitanju je asinhorna funkcija koja koristi callback funckiju koja se poziva kada je generisanje završeno ili ako se desi greška.
     if (err) {
       console.log(err)
       return res.redirect("/reset")
     }
-    const token = buffer.toString("hex")
+    const token = buffer.toString("hex") //pretvaranje bajtova u string,cime dobijamo jedinstveni token koji se koristi za resetovanje lozinke
     const email = req.body.email
     User.findOne({ where: { email: email } })
       .then((user) => {
@@ -180,7 +182,7 @@ exports.postReset = (req, res, next) => {
         }
         user.resetToken = token
         user.resetTokenExpiration = Date.now() + 3600000
-        return user.save()
+        return user.save() //cuvamo usera sa novopostavljenim tokenima
       })
       .then((result) => {
         res.redirect("/")
@@ -188,16 +190,16 @@ exports.postReset = (req, res, next) => {
         <p>You requested a password reset</p>
         <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password</p>
       `
-        return sendEmail(email, html)
+        return sendEmail(email, html) //na mail korisnika se salje se link sa jedinstvenim tokenom koji je dodeljen korisniku ciji je mail unet u obrazac za resetovanje loznike
       })
       .catch((err) => console.log(err))
   })
 }
 
 exports.getNewPassword = (req, res, next) => {
-  const token = req.params.token
+  const token = req.params.token //token koji se nalazi u url
   User.findOne({
-    where: { resetToken: token, resetTokenExpiration: { [Op.gt]: Date.now() } },
+    where: { resetToken: token, resetTokenExpiration: { [Op.gt]: Date.now() } }, //trazimo usera ciji reset token pripada onom definisanom u url-u i ciji resetToken veci od trenutnog vremena(koji jos traje)
   })
     .then((user) => {
       let message = req.flash("error")
@@ -249,7 +251,24 @@ exports.postNewPassword = (req, res, next) => {
     .catch((err) => console.log(err))
 }
 
-// zukorlic.sen123@gmail.com
-
 //VAZNE STVARI ZA NAPOMENU:
-//1.Lozinka se hesira pri kreiranju naloga
+
+//ZA REGISTRACIJU NALOGA
+//1.Provera se da li uneta email adresa vec postoji u bazi
+//2.Lozinka se hesira
+//3.Nakon te dve provere,kreiramo novog korisnika sa unetim mailom i hesiranom vrednosti
+
+//ZA REGISTRACIJU NALOGA
+//1.Provera se da li uneta email adresa vec postoji u bazi
+//2.Proverava se da li je lozinka jednaka hesiranoj vrednosti lozinke koja je sacuvana u u bazi.
+//3.Ako jeste cuvamo podatke korisnika u sesiji,a zatim cuvamo sesiju
+
+//ODJAVLJIVANJE SA NALOGA
+//1.Samo unistavamo sesiju
+
+//RESETOVANJE LOZINKE
+//1.Prvo se napravi funkcija u kojoj se kreira jedinstveni token preko crypto bajtova,koje kasnije pretvaramo u heksimalni string(token).Zatim pronalazimo korisnika preko unetog maila u bazi podataka i korisnikovoj instanci koja se nalazi u bazi podataka dodeljujemo vrednost tog tokena i dodeljujemo vrednost tokena koji vremenski oznacava koliko traje token i cuvamo korisnika sa novim tokenima.Zatim saljemo mail korisniku sa linkom koji je zapravo url sa tokenom na kraju url-a.
+
+//2.Zatim pravimo funckiju u kojoj prikazujemo view za postavljanje nove loznike,ali samo ako korisnikov token odgovara tokenu koji je poslat u url-u i resetToken i dalje vazeci,time cemo sacuvati korisnika od raznih napada
+
+//3.Pravimo trecu funkcijuu kojoj u konacno postavljamo novu lozinku.Prvobitno trazimo korisnika ciji token,reset token i id koji su u bazi,odgovaraju onima koji se nalaze na frontendu (view enginu).Zatim hesiramo novu lozinku,cuvamo je kao korisnicku instancu i i postavljamo instance tokena i resetTokena na nedefinisane i na kraju cuvamo korisnika.Ovom radnjom smo promenili sifru korisnika
