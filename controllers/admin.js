@@ -1,16 +1,16 @@
 const Product = require("../models/product")
+const User = require("../models/user")
 
 const { validationResult } = require("express-validator")
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
-    //Nebitno je ime view fajlova
     pageTitle: "Add Product",
     path: "/admin/add-product",
     errorMessage: null,
     hasError: false,
     validationErrors: [],
-    editing: false, //Varijabla pomocu koje se vrsi kondicionalni rendering i prikazuje html/ejs fajl koji je forma za kreiranje produkta
+    editing: false, //Varijabla pomocu koje se vrsi kondicionalni rendering i prikazuje ejs fajl koji je forma za kreiranje produkta
   })
 }
 
@@ -19,8 +19,9 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl
   const price = req.body.price
   const description = req.body.description
-  const errors = validationResult(req)
+  const errors = validationResult(req) //provjerava rezultate svih prethodno definiranih validacija za trenutni zahtjev (req) i vraća objekt koji sadrži informacije o svim pronađenim greškama
   if (!errors.isEmpty()) {
+    //statusni kod koji pokazuje da validacija nije uspela,i renderuje view gde se prikazuje poruke o greskama prilikom validacije
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Add Product",
       path: "/admin/edit-product",
@@ -32,13 +33,14 @@ exports.postAddProduct = (req, res, next) => {
         price: price,
         description: description,
       },
-      errorMessage: errors.array()[0].msg,
-      validationErrors: errors.array(),
+      errorMessage: errors.array()[0].msg, //varijabla u kojoj prikazujemo samo prvu gresku proizvedenu prilikom validacije
+      validationErrors: errors.array(), //varijabla koju koristimo kao niz sa greskama proizvedenih kroz proces validacije.
     })
+    //Znaci u slucaju da prilikom pokusaja kreiranja proizvoda ima neispravno unetih podataka,renderujemo greske i ostavljamo pogresno ili delimicno pogresno unete informacije o prozivodu,radi boljeg korisnickog iskustva
   }
-  req.user
+  req.user //instanca za korisnika kreirana u app
     .createProduct({
-      //Funkcija koja pripada Sequelize i to pomocu definisanja u app
+      //Funkcija koja pripada Sequelize za kreiranje produkta
       title: title,
       price: price,
       imageUrl: imageUrl,
@@ -51,10 +53,11 @@ exports.postAddProduct = (req, res, next) => {
     .catch((err) => {
       console.log(err)
     })
+  //Inace ako je validacija prolsa kako treba,dopustamo korisniku da kreira proizvod
 }
 
 exports.getEditProduct = (req, res, next) => {
-  const editMode = req.query.edit
+  const editMode = req.query.edit //edit se koristi kao parametar u url kako bi imali kontrolu prikaza
   if (!editMode) {
     return res.redirect("/")
   }
@@ -150,4 +153,6 @@ exports.postDeleteProduct = (req, res, next) => {
     .catch((err) => console.log(err))
 }
 
-//Vazno napomenuti da ovakakv nacin pristupanja elementima u bazi podataka:"req.user.getProducts({ where: { id: prodId } })" je isti kao i ovaj nacin:"Product.findByPk(prodId)"
+//VAZNO
+//1.Napomenuti da ovakakv nacin pristupanja elementima u bazi podataka:"req.user.getProducts({ where: { id: prodId } })" je isti kao i ovaj nacin:"Product.findByPk(prodId)"
+//2.

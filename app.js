@@ -34,8 +34,8 @@ const adminRoutes = require("./routes/admin")
 const shopRoutes = require("./routes/shop")
 const authRoutes = require("./routes/auth")
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(express.static(path.join(__dirname, "public")))
+app.use(bodyParser.urlencoded({ extended: false })) //omogućava vašoj aplikaciji da parsira podatke iz formulara i stavlja ih u req.body
+app.use(express.static(path.join(__dirname, "public"))) //omogućava vašoj aplikaciji da služi statičke datoteke iz navedenog direktorijuma klijentima.
 app.use(
   session({
     secret: "my secret", // tajni ključ koji se koristi za potpisivanje ID-a sesije
