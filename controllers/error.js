@@ -7,8 +7,8 @@ exports.get404 = (req, res, next) => {
 }
 
 exports.get500 = (req, res, next) => {
-  res.status(505).render("505", {
+  res.status().render("500", {
     pageTitle: "Error",
-    path: "/505",
+    path: "/500",
   })
 }

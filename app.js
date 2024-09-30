@@ -48,10 +48,10 @@ app.use(
 app.use(csrfProtection)
 app.use(flash())
 
-const userSession = require("./middleware/user-session")
-app.use(userSession)
 const flagCsrf = require("./middleware/flag-csrf")
+const userSession = require("./middleware/user-session")
 app.use(flagCsrf)
+app.use(userSession)
 
 app.use("/admin", adminRoutes)
 app.use(shopRoutes)
@@ -60,7 +60,12 @@ app.get("/500", errorController.get500)
 app.use(errorController.get404)
 
 app.use((error, req, res, next) => {
-  res.redirect("/500") //posebna vrsta middlewera koja se koristi za rukovanje greskama,ako se greska javi negde ranije,automtaski se poziva ovaj middlewre,koji za posao ima renderovanje tj preusmeravanje na stranicu sa greskom statusa 500
+  //posebna vrsta middlewera koja se koristi za rukovanje greskama,ako se greska javi negde ranije,automtaski se poziva ovaj middlewre,koji za posao ima renderovanje tj preusmeravanje na stranicu sa greskom statusa.
+  // res.redirect("/500")
+  res.status(500).render("500", {
+    pageTitle: "Error",
+    path: "/500",
+  })
 })
 
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" })
