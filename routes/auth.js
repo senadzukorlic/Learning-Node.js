@@ -36,6 +36,7 @@ router.post(
         return User.findOne({ where: { email: value } }).then((userDoc) => {
           if (userDoc) {
             return Promise.reject(
+              //Stavljamo ovu poruku u promise objeakt umesto u error,kako ne bi kresovali nasu aplikaciju
               "E-mail exists already,please pick a different one."
             )
           }
