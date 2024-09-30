@@ -59,6 +59,10 @@ app.use(authRoutes)
 app.get("/500", errorController.get500)
 app.use(errorController.get404)
 
+app.use((error, req, res, next) => {
+  res.redirect("/500") //posebna vrsta middlewera koja se koristi za rukovanje greskama,ako se greska javi negde ranije,automtaski se poziva ovaj middlewre,koji za posao ima renderovanje tj preusmeravanje na stranicu sa greskom statusa 500
+})
+
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" })
 User.hasMany(Product)
 User.hasOne(Cart)

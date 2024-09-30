@@ -51,7 +51,10 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products")
     })
     .catch((err) => {
-      res.redirect("/500")
+      // res.redirect("/500")//ovo nacin prikazivanja gresaka kada su u pitanju vece greske
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
     })
   //Inace ako je validacija prolsa kako treba,dopustamo korisniku da kreira proizvod
 }
@@ -79,7 +82,11 @@ exports.getEditProduct = (req, res, next) => {
         validationErrors: [],
       })
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.postEditProduct = (req, res, next) => {
