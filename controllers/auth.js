@@ -98,7 +98,11 @@ exports.postLogin = (req, res, next) => {
           res.redirect("/login")
         })
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.postSignup = (req, res, next) => {
@@ -140,7 +144,9 @@ exports.postSignup = (req, res, next) => {
     })
 
     .catch((err) => {
-      console.log(err)
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
     })
 }
 
@@ -192,7 +198,11 @@ exports.postReset = (req, res, next) => {
       `
         return sendEmail(email, html) //na mail korisnika se salje se link sa jedinstvenim tokenom koji je dodeljen korisniku ciji je mail unet u obrazac za resetovanje loznike
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        const error = new Error(err)
+        error.httpStatusCode = 500
+        return next(error)
+      })
   })
 }
 
@@ -216,7 +226,11 @@ exports.getNewPassword = (req, res, next) => {
         passwordToken: token,
       })
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 exports.postNewPassword = (req, res, next) => {
@@ -248,7 +262,11 @@ exports.postNewPassword = (req, res, next) => {
       const html = "<p>You have successfully changed your password.</p>"
       return sendEmail(email, html)
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      const error = new Error(err)
+      error.httpStatusCode = 500
+      return next(error)
+    })
 }
 
 //VAZNE STVARI ZA NAPOMENU:
