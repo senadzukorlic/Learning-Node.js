@@ -51,7 +51,7 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products")
     })
     .catch((err) => {
-      console.log(err)
+      res.redirect("/500")
     })
   //Inace ako je validacija prolsa kako treba,dopustamo korisniku da kreira proizvod
 }
