@@ -1,4 +1,5 @@
 const Product = require("../models/product")
+const ITEMS_PER_PAGE = 2
 
 exports.getProducts = (req, res, next) => {
   Product.findAll()
@@ -34,10 +35,15 @@ exports.getProduct = (req, res, next) => {
 }
 
 exports.getIndex = (req, res, next) => {
-  Product.findAll()
+  const page = +req.query.page || 1
+  const offset = (page - 1) * ITEMS_PER_PAGE
+  Product.findAndCountAll({
+    offset: offset,
+    limit: ITEMS_PER_PAGE,
+  })
     .then((products) => {
       res.render("shop/index", {
-        prods: products,
+        prods: products.rows,
         pageTitle: "Shop",
         path: "/",
       })
