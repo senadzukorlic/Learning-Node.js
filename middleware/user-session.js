@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
   }
   User.findByPk(req.session.user.id) //Trazimo korisnika u bazi i ako njegova sesija nije istekla(znaci da je prijavljen),koristimo izraz req.user kako bi lakse pristupali svim instancama korisnika
     .then((user) => {
-      throw new Error("Dummy")
+      // throw new Error("Dummy")
       if (!user) {
         return next() //dodatna provera kako bi obezbedili da se nasa aplikacija ne kresuje
       }
