@@ -38,21 +38,20 @@ exports.getIndex = (req, res, next) => {
   const page = +req.query.page || 1
   const offset = (page - 1) * ITEMS_PER_PAGE
   let totaltems
-  Product.findAll()
-    .count()
+  Product.count()
     .then((numProducts) => {
       totaltems = numProducts
-      return Product.findAndCountAll({
+      return Product.findAll({
         offset: offset,
         limit: ITEMS_PER_PAGE,
       })
     })
     .then((products) => {
       res.render("shop/index", {
-        prods: products.rows,
+        prods: products,
         pageTitle: "Shop",
         path: "/",
-        totalPorducts: totaltems,
+        currentPage: page,
         hasNextPage: ITEMS_PER_PAGE * page < totaltems,
         hasPreviousPage: page > 1,
         nextPage: page + 1,
