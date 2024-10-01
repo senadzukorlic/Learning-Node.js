@@ -37,15 +37,27 @@ exports.getProduct = (req, res, next) => {
 exports.getIndex = (req, res, next) => {
   const page = +req.query.page || 1
   const offset = (page - 1) * ITEMS_PER_PAGE
-  Product.findAndCountAll({
-    offset: offset,
-    limit: ITEMS_PER_PAGE,
-  })
+  let totaltems
+  Product.findAll()
+    .count()
+    .then((numProducts) => {
+      totaltems = numProducts
+      return Product.findAndCountAll({
+        offset: offset,
+        limit: ITEMS_PER_PAGE,
+      })
+    })
     .then((products) => {
       res.render("shop/index", {
         prods: products.rows,
         pageTitle: "Shop",
         path: "/",
+        totalPorducts: totaltems,
+        hasNextPage: ITEMS_PER_PAGE * page < totaltems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totaltems / ITEMS_PER_PAGE),
       })
     })
     .catch((err) => {
