@@ -62,6 +62,7 @@ app.use(errorController.get404)
 app.use((error, req, res, next) => {
   //posebna vrsta middlewera koja se koristi za rukovanje greskama,ako se greska javi negde ranije,automtaski se poziva ovaj middlewre,koji za posao ima renderovanje tj preusmeravanje na stranicu sa greskom statusa.
   // res.redirect("/500")
+  console.error(error.stack)
   res.status(500).render("500", {
     pageTitle: "Error",
     path: "/500",

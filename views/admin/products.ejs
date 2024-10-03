@@ -30,7 +30,7 @@
                                     <a href="/admin/edit-product/<%= product.id %>?edit=true" class="btn">Edit</a>
                                         <input type="hidden" value="<%= product.id %>" name="productId">
                                         <input type="hidden" value="<%= csrfToken %>" name="_csrf" />
-                                        <button class="btn" type="submit" onclick="deleteProduct(this)">Delete</button>
+                                        <button class="btn" type="button" onclick="deleteProduct(this)">Delete</button>
 
                                 </div>
                             </article>
